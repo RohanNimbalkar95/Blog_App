@@ -1,7 +1,7 @@
 "use client";
 
 import { Post } from "@/lib/generated/prisma/client";
-import { Bar, BarChart } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -16,11 +16,7 @@ import {
   ChartTooltipContent,
 } from "./ui/chart";
 
-const chartConfig = {
-  desktop: {
-    color: "#2563eb",
-  },
-} satisfies ChartConfig;
+const chartConfig = {} satisfies ChartConfig;
 
 interface ChartProps {
   data: Post[];
@@ -35,8 +31,16 @@ export default function DashboardChart({ data }: ChartProps) {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart data={data}>
-            <Bar dataKey="views" />
+          <BarChart data={data} maxBarSize={60}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="title"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 10)}
+            />
+            <Bar dataKey="views" fill="#2563eb" radius={4} />
             <ChartTooltip content={<ChartTooltipContent />} />
           </BarChart>
         </ChartContainer>

@@ -76,3 +76,87 @@ export const updatePostViews = async (id: string) => {
     throw new Error("Something went wrong");
   }
 };
+
+export const getPostsByCategory = async (categoryId: string, page: number) => {
+  const skip = (page - 1) * PAGE_SIZE;
+  const session = await authSession();
+
+  const currentUser = session?.user.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { savedPosts: true },
+      })
+    : null;
+
+  try {
+    const [posts, totalCount] = await prisma.$transaction([
+      prisma.post.findMany({
+        where: { categoryId },
+        skip,
+        take: PAGE_SIZE,
+        orderBy: { updatedAt: "desc" },
+        include: {
+          user: {
+            select: { image: true, name: true, id: true, savedPosts: true },
+          },
+          category: true,
+        },
+      }),
+      prisma.post.count({ where: { categoryId } }),
+    ]);
+
+    return {
+      posts: posts.map((post) => ({
+        ...post,
+        savedPosts: currentUser?.savedPosts ?? [],
+      })),
+      totalPages: Math.ceil(totalCount / PAGE_SIZE),
+      currentPage: page,
+    };
+  } catch (err) {
+    console.error({ err });
+    throw new Error("Something went wrong");
+  }
+};
+
+export const getPostsByTag = async (tag: string, page: number) => {
+  const skip = (page - 1) * PAGE_SIZE;
+  const session = await authSession();
+
+  const currentUser = session?.user.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { savedPosts: true },
+      })
+    : null;
+
+  try {
+    const [posts, totalCount] = await prisma.$transaction([
+      prisma.post.findMany({
+        where: { tags: { has: tag } },
+        skip,
+        take: PAGE_SIZE,
+        orderBy: { updatedAt: "desc" },
+        include: {
+          user: {
+            select: { image: true, name: true, id: true, savedPosts: true },
+          },
+          category: true,
+        },
+      }),
+      prisma.post.count({ where: { tags: { has: tag } } }),
+    ]);
+
+    return {
+      posts: posts.map((post) => ({
+        ...post,
+        savedPosts: currentUser?.savedPosts ?? [],
+      })),
+      totalPages: Math.ceil(totalCount / PAGE_SIZE),
+      currentPage: page,
+    };
+  } catch (err) {
+    console.error({ err });
+    throw new Error("Something went wrong");
+  }
+};

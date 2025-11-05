@@ -124,6 +124,7 @@ export const getPostsByUser = async () => {
     }
 
     const res = await prisma.post.findMany({
+      take: 10,
       where: { userId: session.user.id },
       orderBy: { updatedAt: "desc" },
     });

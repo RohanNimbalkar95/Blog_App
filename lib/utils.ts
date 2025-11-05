@@ -31,3 +31,10 @@ export function stripHtml(html: string) {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+export const getNameInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((part) => part.charAt(0))
+    .join("");
+};

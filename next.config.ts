@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       {
         hostname: "mockmind-api.uifaces.co",
       },
+      { hostname: "picsum.photos" },
+      { hostname: "lh3.googleusercontent.com" },
     ],
   },
 };
